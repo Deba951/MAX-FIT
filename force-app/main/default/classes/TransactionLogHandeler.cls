@@ -11,4 +11,27 @@ public with sharing class TransactionLogHandeler {
             insert TransactionLog;
         // }
     }
+
+    public static void doHandleExceptionWithError(String errors, String processName){
+        Error_Log__c transactionLog = new Error_Log__c (
+            Log_Details__c = errors,
+            Lod_DateTime__c = System.Now(),
+            Process_Name__c = processName
+        );
+
+        insert TransactionLog;
+    }
 }
+
+
+/*
+Demo Check:
+--------------
+Open Anonymous Window:
+
+try{
+    integer i=10/0;
+}catch(System.Exception ex){
+	TransactionLogHandeler.doHandleException(ex, 'Developer Console');
+}
+*/

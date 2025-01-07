@@ -1,7 +1,7 @@
 public class EventAttendeeTriggerHandler {
     
     public static void sendConfirmationEmail(List<Event_Attendee__c> newRecordList ) {
-        /*
+        
         Set<Id> attendeesIdsSet = new Set<Id>();
         Set<Id> eventIdsSet = new Set<Id>();
         
@@ -10,16 +10,9 @@ public class EventAttendeeTriggerHandler {
             eventIdsSet.add(ea.Event__c);
         }
         
-        Map<Id,Attendee__c> attendeeMap = new Map<Id,Attendee__c>( 
-            [Select Id, Name, Email__c From Attendee__c WHERE  Id IN : attendeesIdsSet]
-        );
+        Map<Id,Attendee__c> attendeeMap = new Map<Id,Attendee__c>( [Select Id, Name, Email__c From Attendee__c WHERE  Id IN : attendeesIdsSet]);
         
-        Map<Id, Event__c > eventMap = new Map<Id, Event__c > ( [Select Id, Name__c, Start_DateTime__c, Event_Organizer__c , Event_Organizer__r.Name,
-                                                                Location__c , Location__r.Name, Location__r.City__c,
-                                                                Location__r.State__c, Location__r.Country__c,
-                                                                Location__r.Postal_Code__c, Location__r.Street__c
-                                                                FROM Event__c  WHERE ID IN: eventIdsSet]
-                                                             );
+        Map<Id, Event__c > eventMap = new Map<Id, Event__c > ( [Select Id, Name__c, Start_DateTime__c, Event_Organizer__c , Event_Organizer__r.Name, Location__c , Location__r.Name, Location__r.City__c, Location__r.State__c, Location__r.Country__c, Location__r.Postal_Code__c, Location__r.Street__c FROM Event__c  WHERE ID IN: eventIdsSet]);
         
         List<Messaging.SingleEmailMessage> emailList = new List<Messaging.SingleEmailMessage>();
         
@@ -28,18 +21,31 @@ public class EventAttendeeTriggerHandler {
             Attendee__c att = attendeeMap.get(ea.Attendee__c);
             Event__c evt = eventMap.get(ea.Event__c);
               
+            // Preparing Email Template
+            // Inbuild class --> Messaging.SingleEmailMessage for Emailing
             Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+            /*
+            To, CC, BCC
+            Subject
+            Body
+            Signature
+            Attachment
+            */
 
             mail.setSubject('Pass for the '+evt.Name__c);
+            // To Store multiple Emails in a List
             List<String> toAddress = new List<String>();
+            // Add multiple emails if needed seperated by comma in the same field
             toAddress.add(att.Email__c);
             mail.setToAddresses( toAddress );
             mail.setSenderDisplayName(evt.Event_Organizer__r.Name);
             
-            String locaton = 'https://www.google.com/maps/place/'+evt.Location__r.Street__c+' '+evt.Location__r.City__c+' '
-                +evt.Location__r.State__c+' '+
-                evt.Location__r.Country__c+' '+evt.Location__r.Postal_Code__c;
+            // Creating the Location
+            String locaton = 'https://www.google.com/maps/place/'+evt.Location__r.Street__c+' '+evt.Location__r.City__c+' '+evt.Location__r.State__c+' '+evt.Location__r.Country__c+' '+evt.Location__r.Postal_Code__c;
+            
+            // Creating the location as a hyperlink
             String hrefForLocation = '<a href="'+locaton+'"'+'target="_blank">Here</a>';
+            
             String emailBody = 'Dear '+ att.Name + ',<br/><br/>'+
                 'Thank you for registering for '+evt.Name__c+' which will be Organized on '+
                 evt.Start_DateTime__c+' & will be held in '+evt.Location__r.Name
@@ -60,11 +66,11 @@ public class EventAttendeeTriggerHandler {
                 System.debug(email.isSuccess());
                 if(!email.isSuccess()){
                     List<Messaging.SendEmailError> errors = email.getErrors();
-                    TransactionLogHandler.doHandleExceptionWithError(JSON.serialize(errors), 'EventAttendeeTriggerHandler');
+                    TransactionLogHandeler.doHandleExceptionWithError(JSON.serialize(errors), 'EventAttendeeTriggerHandler');
                 }
             }  
         }catch(System.Exception ex){
-            TransactionLogHandler.doHandleException(ex, 'EventAttendeeTriggerHandler');
-        }*/
+            TransactionLogHandeler.doHandleException(ex, 'EventAttendeeTriggerHandler');
+        }
     }
 }
